@@ -1,0 +1,92 @@
+---
+title: "Making a table"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## Introduction
+This R-Markdown file will produce a table. First we need to load packages.
+
+```{r load-packages, message = FALSE, warning = FALSE}
+
+library(tidyverse)
+library(knitr) # for tables
+
+```
+
+
+## Load the data
+
+```{r load-data, warning = FALSE, message = FALSE}
+hypertrophy <- read_csv("./data/hypertrophy.csv")
+
+var_interest <- c("SUB_ID", "GROUP", "CLUSTER", "AGE", "T1_BODY_MASS",
+                  "PERCENT_TYPE_II_T1", "Squat_3RM_kg", "DXA_LBM_1", 
+                  "DXA_FM_T1", "SQUAT_VOLUME")
+
+hyp2 <- hypertrophy %>%
+  select(all_of(var_interest))
+
+
+```
+
+## Summarise the data
+
+```{r summarise-data, warning = FALSE, message = FALSE, results = "asis"}
+
+hyp2 %>%
+  filter(!is.na(CLUSTER)) %>%
+
+  select(-GROUP) %>%
+  
+  pivot_longer(names_to = "variable", 
+               values_to = "value", 
+               cols = AGE:SQUAT_VOLUME) %>%
+  
+  group_by(CLUSTER, variable) %>%
+  summarise(m = mean(value), 
+            s = sd(value)) %>% 
+  mutate(ms = paste(round(m, 1), 
+                    " (", 
+                    round(s, 1), 
+                    ")", sep = ""),
+         
+         CLUSTER = factor(CLUSTER, levels = c("LOW", "HIGH"), 
+                          labels = c("LOW (n = 10)", 
+                                     "HIGH (n = 10)")),
+         
+         variable = factor(variable, 
+                           levels = c("AGE", 
+                                      "T1_BODY_MASS", 
+                                      "DXA_LBM_1", 
+                                      "DXA_FM_T1", 
+                                      "PERCENT_TYPE_II_T1", 
+                                      "Squat_3RM_kg", 
+                                      "SQUAT_VOLUME"), 
+                           labels = c("Age (years)", 
+                                      "Body mass (kg)", 
+                                      "LBM (kg)", 
+                                      "FM (kg)", 
+                                      "Type II (%)", 
+                                      "Squat 3RM (kg)", 
+                                      "Total training volume (kg)"))) %>%
+  select(-m, -s) %>%
+
+  pivot_wider(names_from = CLUSTER, 
+              values_from = ms) %>%
+  arrange(variable) %>%
+  select(variable, `LOW (n = 10)`, `HIGH (n = 10)`) %>%
+  
+  kable(caption = "Table 1. Participant characteristics", 
+        col.names = c("", "LOW (n = 10)", "HIGH (n = 10)"))
+
+
+```
+
+
+
+
+
+
+

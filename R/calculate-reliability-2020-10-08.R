@@ -17,7 +17,9 @@ df <- data.frame(t1 = c(41.6, 115.3, 48.4, 59.9, 67.2, 63.4, 94.2, 130, 98.8, 78
 # and finally the relative TE as a percentage of the mean test-score.
 
 df %>%
+
   mutate(change = t2 - t1) %>%
+  
   group_by() %>%
   summarise(sd.change = sd(change), 
             mean.test = mean(c(t1, t2)), 
