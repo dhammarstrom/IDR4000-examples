@@ -5,19 +5,21 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-library(tidyverse)
-```
 
 
 ## How to look for help
 
+When coding in R you will encounter problems that can be solved by looking for help. Built-in help pages can be accessed writing a question mark in front of a function name.  
+
+[See here for more information about looking for help](https://www.r-project.org/help.html)
+
 
 ## How to look for error in the code
 
-
+We went through the code below searching for errors. Debugging is a more general subject, what we did was line by line evaluation of the code unitl we located the error. Remember to search the code from to to bottom. 
 
 ```{r}
+library(tidyverse)
 
 hypertrophy <- read_csv("./data/hypertrophy.csv")
 # read_csv is from the package readr
@@ -96,6 +98,9 @@ hyp2 %>%
 ```
 
 ## Import data
+
+By using the built-in import function in RStudio it is possible to get a copy of code representing an import that you want. Rememeber to keep the code in a script to avoid point-click next time you import data.
+
 ```{r}
 library(readxl)
 rel <- read_excel("data/reliability.xlsx", na = "NA")
@@ -103,6 +108,11 @@ rel <- read_excel("data/reliability.xlsx", na = "NA")
 
 
 ## Write code in sequence
+
+- Write a plan
+- Update the plan as you go
+- Evaluate every line or major step in the code to see if you get what you expect. 
+- Remember to write the code for evaluation top to bottom
 
 ```{r}
 
