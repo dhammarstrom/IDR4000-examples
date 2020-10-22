@@ -1,0 +1,82 @@
+---
+title: "Testing group differences"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+A t-test can be done using paired data and unpaired data. The first example is an analysis of paired data. A key point is that we infer about the population with inferential statistics (based on a t-test) and describe our data with descriptive statistics (e.g. figures).
+
+# A paired example
+
+Here we are interested in the difference in CSA between slow and fast muscle fibers.
+
+```{r load-data}
+# Load variables
+library(tidyverse)
+
+hypertrophy <- read_csv("./data/hypertrophy.csv")
+# read_csv is from the package readr
+
+
+# Save the subsetted data set 
+dat1 <- hypertrophy %>%
+  select(SUB_ID, FAST_CSA_T1, SLOW_CSA_T1) 
+
+
+# The t-test is done using the $ operator, selecting a specific column 
+# in the data set. Save the t-test for later use
+paired.t <- t.test(dat1$FAST_CSA_T1, dat1$SLOW_CSA_T1, 
+       paired = TRUE)
+
+
+# Combine code like so:
+
+# The results can be written in the text as: The mean difference between 
+# fibertypes were `r round(paired.t$estimate, 2)`, 95% CI: 
+# [`r round(paired.t$conf.int[1], # 2)`, `r round(paired.t$conf.int[2], 2)`]. 
+
+
+
+```
+
+The results can be written in the text as: The mean difference between fibertypes were `r round(paired.t$estimate, 2)`, 95% CI: [`r round(paired.t$conf.int[1], 2)`, `r round(paired.t$conf.int[2], 2)`]. 
+
+A descriptive plot can use every individual value or a combination. Below we see every paired value.
+
+```{r plot-data}
+dat1 %>%
+  pivot_longer(names_to = "fibertype", 
+               values_to = "csa", 
+               cols = FAST_CSA_T1:SLOW_CSA_T1) %>%
+  mutate(fibertype = gsub("_CSA_T1", "", fibertype)) %>%
+  
+ 
+  
+  ggplot(aes(fibertype, csa, group = SUB_ID)) + 
+  geom_line() +
+  geom_point()
+
+
+```
+
+# An independent example
+
+Independent t-tests are performed when the data have no relation, as with independent groups. 
+
+```{r}
+
+# Make a sub set of the data set
+
+dat1 <- hypertrophy %>%
+  select(SUB_ID, CLUSTER, T3T1__TESTOSTERONE_ngdl) %>%
+  filter(!is.na(CLUSTER), 
+         !is.na(T3T1__TESTOSTERONE_ngdl)) 
+# The t test is unpaired
+t.test(T3T1__TESTOSTERONE_ngdl ~ CLUSTER, data = dat1)
+
+```
+
+
+
+
