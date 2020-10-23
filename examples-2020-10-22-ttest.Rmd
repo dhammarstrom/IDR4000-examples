@@ -73,9 +73,42 @@ dat1 <- hypertrophy %>%
   filter(!is.na(CLUSTER), 
          !is.na(T3T1__TESTOSTERONE_ngdl)) 
 # The t test is unpaired
-t.test(T3T1__TESTOSTERONE_ngdl ~ CLUSTER, data = dat1)
+test <- t.test(T3T1__TESTOSTERONE_ngdl ~ CLUSTER, 
+               data = dat1)
+
+
+# Save data in code chunk for printing in text.
+
+t <- round(test$statistic, 2)
+df <- round(test$parameter, 1)
+p <- round(test$p.value, 3)
+
+estimate <- round(test$estimate[1] - test$estimate[2], 1)
+
+cil <- round(test$conf.int[1], 1)
+ciu <- round(test$conf.int[2], 1)
+
+# To show these data in the text use the following code: 
+
+# We conclude that HIGH does not differ from LOW
+# in Testo change from T1 to T3 (mean
+# difference, `r estimate`, 95% CI [`r cil`, `r
+# ciu`]; t(`r df`) = `r t`, p = `r p`)
+
 
 ```
+
+We conclude that HIGH does not differ from LOW in Testo change from T1 to T3 (mean difference, `r estimate`, 95% CI [`r cil`, `r ciu`]; t(`r df`) = `r t`, p = `r p`)
+
+
+
+
+
+
+
+
+
+
 
 
 
