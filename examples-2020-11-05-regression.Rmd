@@ -1,0 +1,38 @@
+---
+title: "Regression examples 2020-11-06"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# The role of outliers in 
+
+```{r}
+
+# Load libraries and read the data 
+library(tidyverse)
+
+hypertrophy <- read_csv("./data/hypertrophy.csv")
+# read_csv is from the package readr
+
+hypertrophy %>%
+  ggplot(aes(MSTN_T3T1_FOLD_CHANGE , T3T1__AVG_CSA)) + geom_point() + geom_smooth(method = "lm")
+
+
+summary(lm(T3T1__AVG_CSA ~ MSTN_T3T1_FOLD_CHANGE , data = hypertrophy))
+
+glimpse(hypertrophy)
+```
+
+# Regression towards the mean
+
+```{r}
+
+```
+
