@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-# The role of outliers in 
+# Functions for checking the regression model
 
 ```{r}
 
@@ -21,18 +21,51 @@ library(tidyverse)
 hypertrophy <- read_csv("./data/hypertrophy.csv")
 # read_csv is from the package readr
 
+
+# fit a model
+m <- lm(T3T1__AVG_CSA ~ MSTN_T3T1_FOLD_CHANGE , data = hypertrophy)
+
+# Summary
+summary(m)
+
+
+# Predicted values
+hypertrophy$fitted <- fitted(m)
+
+# Residuals (fitted - observed)
+hypertrophy$residuals <- resid(m)
+
+
+# Make a residuals plot
+
 hypertrophy %>%
-  ggplot(aes(MSTN_T3T1_FOLD_CHANGE , T3T1__AVG_CSA)) + geom_point() + geom_smooth(method = "lm")
+  ggplot(aes(fitted, residuals)) + geom_point()
 
 
-summary(lm(T3T1__AVG_CSA ~ MSTN_T3T1_FOLD_CHANGE , data = hypertrophy))
+# The plot function automatically creates plots for diagnostics
+# To plot all figures in one plot
+par(mfrow = c(2,2)) # two row and two colums
+plot(m)
+par(mfrow = c(1,1)) # reset row columns in plotting window
 
-glimpse(hypertrophy)
+
+## Check the association
+hypertrophy %>%
+  ggplot(aes(MSTN_T3T1_FOLD_CHANGE , T3T1__AVG_CSA)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+
+# Combine confint and tidy(model)
+cbind(broom::tidy(m), broom::tidy(confint(m)))
+
 ```
 
 # Regression towards the mean
 
 ```{r}
+
+
 
 ```
 

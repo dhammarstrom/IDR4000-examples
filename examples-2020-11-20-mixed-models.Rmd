@@ -1,0 +1,176 @@
+---
+title: "Mixed models -- Examples"
+bibliography: resources/bibliography.bib
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+# The strengthTests data set
+
+***Question:*** Does higher training volume lead to increased strength? 
+
+***Aim of the analysis:*** Determine the *difference* in strength gain between high and low-volume strength training.
+
+## Possible interpretations 
+
+### Estimation [@Cumming2012]
+- This analysis can be driven by the question and analyzed with the goal to *estimate the difference* between training conditions.
+- The 95% CI interval can be used to specify the precision of our estimate. 
+- With our statistical model we are trying to estimate the true difference between training condition, the 95% CI can be interpreted as a interval of plausible values of the true mean difference.
+
+
+### Null hypothesis testing
+- The question may be developed to an hypothesis and analyzed under the null hypothesis testing framework
+- The null hypothesis will be that there are no differences between training conditions in strength development. 
+- An alternative hypothesis (should be used) defines the smallest difference of interest and determines the power of the test. 
+- The p-value will be used to test the hypothesis, this is a test against the null. 
+
+### Other paradigms
+- Bayesian/Likelihood analysis, instead of looking for a true unknown (fixed), we are interested in estimating the unknown random variable with (Bayesian) or without (Likelihood) prior knowledge. (Note to self: Check these definitions)
+
+### What to choose?
+
+It is up to you to select the most appropriate way of analyzing your data! This may be difficult but a good starting point is to clearly define your question, look at the structure of the data (repeated or not repeated measures) and the define what model could capture your question.  
+
+# A mixed model approach
+
+### Is a mixed model needed?
+
+There are more than one observation per participant meaning the error will be correlated, a mixed model is needed. However, we could re-organize the data to compare for example change between groups instead. Then a simple t-test or ANCOVA model would suffice.
+
+# Fitting the model
+
+```{r, echo = TRUE, warning=FALSE, message=FALSE}
+# Load packages and data 
+library(tidyverse)
+library(lme4)
+
+
+strength <- read_csv("./data/strengthTests.csv")
+
+# Filter the data 
+str <- strength %>%
+  filter(exercise == "isom") %>% # Only use isometric data
+  # Fixes the time point factor (order)
+  # Adds a new factor with two pre-measures
+  # Fix order or grouping variable
+  mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post")), 
+         time = if_else(timepoint == "post", "post", "pre"), 
+         time = factor(time, levels = c("pre", "post")), 
+         group = factor(group, levels = c("single", "multiple"))) 
+
+
+# A basic mixed model
+m1 <- lmer(load ~ time * group + (1|subject), data = str)
+
+# plot(m1)
+# The residual plot indicates that there are no major problems with the model..
+```
+
+# Appendix R-code
+
+```{r, echo = TRUE, eval=FALSE}
+# Load packages and data 
+library(tidyverse)
+library(lme4)
+
+strength <- read_csv("./data/strengthTests.csv")
+
+# Filter the data 
+
+str <- strength %>%
+  filter(exercise == "isom") %>%
+  mutate(timepoint = factor(timepoint, levels = c("pre", "session1", "post")), 
+         time = if_else(timepoint == "post", "post", "pre"), 
+         time = factor(time, levels = c("pre", "post")), 
+         group = factor(group, levels = c("single", "multiple"))) 
+
+
+# A basic mixed model
+m1 <- lmer(load ~ time * group + (1|subject), data = str)
+
+# plot(m1)
+# The residual plot indicates that there are no major problems with the model..
+```
+
+The model (m1) contains information of the average load per group. These can be calculated from the regression table. This is very similar values to what can be calculated from group and time averages
+
+```{r}
+# Compare the fixed effects table...
+summary(m1)
+
+# ... to averages per group and time
+str %>%
+  group_by(group, time) %>%
+  summarise(mean = mean(load, na.rm = TRUE)) %>%
+  print()
+```
+
+## Alternative approach 
+
+This data set can be reduced to remove multiple data points per participant by calculating each change score. Then we can use:
+
+- Difference between groups in change scores in t-test
+- Difference between groups in change scores using an ANCOVA with pre-values as a covariate.
+
+
+```{r}
+
+# Re-format the data set
+str2 <- str %>%
+  select(-time) %>% #removes the new time variable
+  # Create a wide data set
+  pivot_wider(names_from = timepoint, 
+              values_from = load) %>%
+  rowwise() %>%
+  # Rowwise calculation of means over two variables
+  # to calculate the average at baseline
+  mutate(pre_average = mean(c(pre, session1), na.rm = TRUE)) %>%
+  ungroup() %>%
+  # Calculate the change score
+  mutate(change = post - pre_average) %>%
+   print()
+
+# Alternativ 1: t-test
+# A t-test can be performed on the change scores
+t <- t.test(change ~ group, data = str2)
+t
+# ANCOVA
+# the ANCOVA canm controll for the expected relationship between
+# the baseline and change values... (regression to the mean)
+# We might have to take care of sex diferences, adding sex to the
+# model will accomplish this
+m2 <- lm(change ~ sex + pre_average + group, data = str2)
+
+# The ancova model can be checked with ordinary assumption checks
+plot(m2)
+
+# The results can be plotted
+summary(m2)
+
+```
+
+# Appendix R-code
+
+In your reports (for the mappeeksamen) you should keep the report clean from code and printouts (remove all print() from your code). Instead use `eval = FALSE, echo = TRUE` with a copy of the code in the end of the report as an appendix.
+
+
+```{r, echo = TRUE, eval = FALSE}
+# Load the data 
+library(tidyverse)
+
+strength <- read_csv("./data/strengthTests.csv")
+
+# Filter the data 
+
+strength %>%
+  filter(exercise == "isom") %>%
+  mutate(timepoint = factor(timepoint))
+  print()
+
+
+```
+
+# References
