@@ -1,0 +1,32 @@
+---
+title: "Example of using references"
+bibliography: biblio.bib
+csl: example-csl.csl
+output: html_document
+---
+
+Bibliographies can be added to markdown files to automatically create a list of references in the end of the document. 
+
+In this example a bibliogrpahy (`biblio.bib`) has been added in the YAML field, this is where R will be looking for references. 
+
+A reference is then added by specifying the reference id from the bibliography file.
+
+A .csl file can be added to change the way the reference is created. Create a new file and add code from a .csl file or download the file directly from https://github.com/citation-style-language/styles
+
+
+If you do not want your reference list in the end of the document specify were you want references with `<div id="refs"></div>`
+
+
+# Example usage
+
+qPCR can be used to determine training induced changes in myosin heavy chain composition [@Ellefsen2014].
+
+# References
+
+<div id="refs"></div>
+
+# An additional section after the reference list
+
+Text in the additional section.
+
+
