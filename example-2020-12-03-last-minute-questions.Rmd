@@ -1,0 +1,122 @@
+---
+title: "Untitled"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+Last minute questions on the exam:
+
+
+
+- How to make a pdf through knitting
+
+See video on canvas!
+
+
+- Rownames as variable in tables
+
+See below
+
+- Add references
+
+See below.
+
+## Rownames to variable in tables. 
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+
+library(tidyverse); library(readxl); library(lme4); library(knitr)
+
+dat <- read_excel("./data/ten_vs_thirty.xlsx", na = "NA") %>%
+  filter(exercise == "legpress") %>%
+  print()
+
+
+mod <- lmer(load ~ timepoint * group + (1|subject), data = dat)
+
+mod_sum <- coef(summary(mod))
+
+
+
+mod_sum %>%
+  data.frame() %>%
+  mutate(coef = rownames(.), 
+         coef = factor(coef, levels = c("(Intercept)", 
+                                        "timepointpost", 
+                                        "timepointpre", 
+                                        "groupRM30", 
+                                        "timepointpost:groupRM30", 
+                                        "timepointpre:groupRM30"), 
+                       labels = c("Konstant", 
+                                  "Tid Post", 
+                                  "Tid Pre", 
+                                  "Gruppe 30RM", 
+                                  "Tid Post : Gruppe 30RM", 
+                                  "Tid Pre : Gruppe 30RM"))) %>%
+  select(coef, Estimate, Std..Error, t.value) %>%
+  kable()
+ 
+
+
+
+```
+
+
+
+
+
+## References
+
+To place references inside the docoment (not last) use one of these to alternatives (without being inside code blocks). 
+
+```
+<div id="refs"></div>
+```
+
+or
+
+```
+::: {#refs}
+```
+
+
+# Vedlegg: R-kod
+
+```{r, eval = FALSE}
+
+library(tidyverse); library(readxl); library(lme4); library(knitr)
+
+dat <- read_excel("./data/ten_vs_thirty.xlsx", na = "NA") %>%
+  filter(exercise == "legpress") %>%
+  print()
+
+
+mod <- lmer(load ~ timepoint * group + (1|subject), data = dat)
+
+mod_sum <- coef(summary(mod))
+
+
+
+mod_sum %>%
+  data.frame() %>%
+  mutate(coef = rownames(.), 
+         coef = factor(coef, levels = c("(Intercept)", 
+                                        "timepointpost", 
+                                        "timepointpre", 
+                                        "groupRM30", 
+                                        "timepointpost:groupRM30", 
+                                        "timepointpre:groupRM30"), 
+                       labels = c("Konstant", 
+                                  "Tid Post", 
+                                  "Tid Pre", 
+                                  "Gruppe 30RM", 
+                                  "Tid Post : Gruppe 30RM", 
+                                  "Tid Pre : Gruppe 30RM"))) %>%
+  select(coef, Estimate, Std..Error, t.value) %>%
+  kable()
+ 
+
+
+
+```
